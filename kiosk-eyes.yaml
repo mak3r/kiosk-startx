@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: kiosk
+  namespace: kiosk
+spec:
+  selector:
+    matchLabels:
+      name: startx-kiosk
+  template:
+    metadata:
+      labels:
+        name: startx-kiosk
+    spec:
+      containers:
+        - name: startx
+          image: docker.io/mak3r/kiosk-eyes:0.0.1
+          imagePullPolicy: IfNotPresent
+          restartPolicy: Always
+          securityContext:
+            privileged: true
+            readOnlyRootFilesystem: false
+          volumeMounts:
+            - mountPath: /tmp/.X11-unix/
+              name: xsocket
+            - mountPath: /home/user/xauthority/
+              name: xauthority
+            - mountPath: /run/udev/data/
+              name: udev-data
+          env:
+            - name: URL
+              value: https://google.com
+            - name: DISPLAY
+              value: ':0'
+            - name: XAUTHORITY
+              value: /home/user/xauthority/.xauth
+          command: ["xeyes"]
+          args: ["-geometry", "800x600"]
+      dnsPolicy: ClusterFirst
+      terminationGracePeriodSeconds: 5
+      volumes:
+        - name: xauthority
+          emptyDir: {}
+        - name: xsocket
+          emptyDir: {}
+        - name: udev-data
+          hostPath:
+            path: /run/udev/data/
+            type: Directory

@@ -1,0 +1,13 @@
+# Use the no window manager image 
+# This image, by default starts firefox in kiosk mode and pulls up the suse registry
+FROM docker.io/mak3r/nowm:latest
+
+# Install your application in this base container image
+# In this simple example, we use the package manager to install a GUI app
+RUN zypper -n in xterm xeyes xclock
+
+
+# Pass arguments to the container by either 
+# 1) writing your CMD in this file and building it into the container or
+# 2) pass the arguments for starting your program
+CMD ["xeyes", "-geometry", "80x60+500+250"]

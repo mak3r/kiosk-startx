@@ -1,0 +1,19 @@
+FROM registry.suse.com/bci/bci-base:15.5
+
+RUN zypper addrepo -f http://download.opensuse.org/distribution/leap/15.5/repo/oss/ oss \
+&& zypper --non-interactive --gpg-auto-import-keys refresh
+
+RUN zypper -n in xorg-x11 xorg-x11-server MozillaFirefox hostname \
+xf86-video-fbdev xf86-input-mouse xf86-input-keyboard xf86-input-void \
+xf86-input-evdev xf86-input-libinput libinput10 libinput-udev \
+xinput
+
+
+RUN mkdir /kiosk && chown 1000:1000 /kiosk
+RUN mkdir /tmp/.X11-unix && chmod 1777 /tmp/.X11-unix
+
+WORKDIR /kiosk
+
+ENTRYPOINT ["startx"]
+
+CMD ["/usr/bin/firefox", "--kiosk", "http://registry.suse.com"]
